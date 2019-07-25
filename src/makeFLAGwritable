@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+
+# makeFLAGwritable: make the FLAG column in an MS writable
+#
+# Copyright (C) 2009
+# ASTRON (Netherlands Institute for Radio Astronomy)
+# P.O.Box 2, 7990 AA Dwingeloo, The Netherlands
+#
+# This file is part of the LOFAR software suite.
+# The LOFAR software suite is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# The LOFAR software suite is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with the LOFAR software suite. If not, see <http://www.gnu.org/licenses/>.
+#
+# @author Ger van Diepen <diepen AT astron nl>
+#
+# $Id$
+
+import pyrap.tables as pt
+import sys
+
+# Let the FLAG column use the SSM.
+# This is done by creating a new column, copying the data, and renaming it.
+# Note that first renaming FLAG to, say, FLAGOLD does not work because
+# LofarStMan does not know FLAGOLD.
+
+def makeFlagWritable (msname, flagtablename):
+    ms = pt.table(msname, readonly=False)
+    # Only add if a cell is defined but cannot be written.
+    add = False
+    if ms.iscelldefined('FLAG', 0):
+        try:
+            ms.putcell('FLAG', 0, ms.getcell('FLAG', 0))
+        except:
+            add = True;
+    if add:
+        shape = ms.getcell('FLAG', 0).shape
+        # Define the data manager to be used.
+        dminfo = {'*1': {'TYPE':'StandardStMan',
+                         'NAME':'SSMFlag',
+                         'SPEC':{'BUCKETSIZE':32768}}}
+        # Make a column description with option Direct,FixedShape.
+        tabdesc = pt.maketabdesc (pt.makearrcoldesc("FLAG__TMP", False,
+                                                    options=5, shape=shape))
+        if len(flagtablename) > 0:
+            # Create the table to contain the flags
+            flagtab = pt.table (flagtablename, tabdesc, ms.nrows(),
+                                dminfo=dminfo)
+            flagtab.flush()
+            dminfo = {'*1': {'TYPE':'ForwardColumnEngine',
+                             'NAME':'ForwardFlag',
+                             'SPEC':{'FORWARDTABLE':flagtablename}}}
+        # Add the column to the MS.
+        ms.addcols (tabdesc, dminfo)
+        print 'Created new FLAG column; copying old values ...'
+        # Copy the flags.
+        t = pt.taql ('update %s set FLAG__TMP = FLAG' % msname)
+        t = 0
+        # Remove the old column and rename the new one.
+        ms.removecols ('FLAG')
+        ms.renamecol ('FLAG__TMP', 'FLAG')
+        ms.flush()
+        if len(flagtablename) == 0:
+            print 'FLAG column now stored with SSM to make it writable'
+        else:
+            flagtab = pt.table (flagtablename, readonly=False)
+            flagtab.renamecol ('FLAG__TMP', 'FLAG')
+            flagtab.flush()
+            print 'FLAG column now forwarded to table', flagtablename
+    else:
+        print 'FLAG column is already writable'
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    if len(argv) < 2:
+        print 'run as:  makeFLAGwritable msname [flagtablename]'
+        print '  If column FLAG in the given MS is not writable, it will replace'
+        print '  by a writable FLAG column and copy the current values.'
+        print '  If a flagtable name is given, it will create that table with a'
+        print '  FLAG column and forward the FLAG column in the MS to it.'
+        print '  In this way the flags can be written on the compute node disk'
+        print '  instead of the storage node disk.'
+        print '  If no flagtable name is given, it will add a normal FLAG column.'
+        return 1
+    flagtablename = ''
+    if len(argv) > 2:
+        flagtablename = argv[2]
+    makeFlagWritable (argv[1], flagtablename)
+
+if __name__ == "__main__":
+    sys.exit(main())
