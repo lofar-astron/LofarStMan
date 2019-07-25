@@ -19,7 +19,7 @@
 //#
 //# $Id$
 
-#include <LofarStMan/LofarStMan.h>
+#include "LofarStMan/LofarStMan.h"
 #include <casacore/tables/Tables/TableDesc.h>
 #include <casacore/tables/Tables/Table.h>
 #include <casacore/tables/Tables/ArrColDesc.h>

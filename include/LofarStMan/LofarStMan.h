@@ -28,9 +28,8 @@
 #include <casacore/casa/IO/FiledesIO.h>
 #include <casacore/casa/Containers/Block.h>
 #include <casacore/casa/Containers/Record.h>
-#include <Common/LofarTypes.h>
-#include <Common/lofar_vector.h>
 
+#include <vector>
 
 namespace LOFAR {
 
@@ -140,7 +139,7 @@ public:
   virtual casacore::Record dataManagerSpec() const;
 
   // Get the number of rows in this storage manager.
-  uint getNRow() const
+  unsigned int getNRow() const
     { return itsNrRows; }
   
   // The storage manager is not a regular one.
@@ -171,31 +170,31 @@ public:
 
   // Get data.
   // <group>
-  const casacore::Block<int32>& ant1() const
+  const casacore::Block<int>& ant1() const
     { return itsAnt1; }
-  const casacore::Block<int32>& ant2() const
+  const casacore::Block<int>& ant2() const
     { return itsAnt2; }
-  double time (uint blocknr);
+  double time (unsigned int blocknr);
   double interval() const
     { return itsTimeIntv; }
-  uint nchan() const
+  unsigned int nchan() const
     { return itsNChan; }
-  uint npol() const
+  unsigned int npol() const
     { return itsNPol; }
   double maxnSample() const
     { return itsMaxNrSample; }
-  void getData (uint rownr, casacore::Complex* buf);
-  void putData (uint rownr, const casacore::Complex* buf);
+  void getData (unsigned int rownr, casacore::Complex* buf);
+  void putData (unsigned int rownr, const casacore::Complex* buf);
 
-  const casacore::uChar*  getNSample1 (uint rownr, bool swapIfNeeded);
-  const casacore::uShort* getNSample2 (uint rownr, bool swapIfNeeded);
-  const casacore::uInt*   getNSample4 (uint rownr, bool swapIfNeeded); 
+  const casacore::uChar*  getNSample1 (unsigned int rownr, bool swapIfNeeded);
+  const casacore::uShort* getNSample2 (unsigned int rownr, bool swapIfNeeded);
+  const casacore::uInt*   getNSample4 (unsigned int rownr, bool swapIfNeeded); 
   // </group>
 
-  uint getLofarStManVersion() const
+  unsigned int getLofarStManVersion() const
     { return itsVersion; }
 
-  uint getNrBytesPerNrValidSamples() const
+  unsigned int getNrBytesPerNrValidSamples() const
     { return itsNrBytesPerNrValidSamples; }
 
 private:
@@ -317,18 +316,18 @@ private:
   // Name of data manager.
   casacore::String itsDataManName;
   // The number of rows in the columns.
-  uint         itsNrRows;
+  unsigned int         itsNrRows;
   // The antennae forming the baselines.
-  casacore::Block<int32> itsAnt1;
-  casacore::Block<int32> itsAnt2;
+  casacore::Block<int> itsAnt1;
+  casacore::Block<int> itsAnt2;
   // The start time and interval.
   double itsStartTime;
   double itsTimeIntv;
-  uint32 itsNChan;
-  uint32 itsNPol;
-  uint32 itsNrBytesPerNrValidSamples;
+  unsigned int itsNChan;
+  unsigned int itsNPol;
+  unsigned int itsNrBytesPerNrValidSamples;
   // The column objects.
-  vector<LofarColumn*> itsColumns;
+  std::vector<LofarColumn*> itsColumns;
   // On 32-bit systems regular IO is used.
   int    itsFD;
   casacore::FiledesIO* itsRegFile;
@@ -336,10 +335,10 @@ private:
   // The seqnr file (if present) is always memory-mapped because it is small.
   casacore::MMapIO*     itsSeqFile;
   bool   itsDoSwap;       //# True = byte-swapping is needed
-  int64  itsBlockSize;    //# size of a block containing a seqnr
-  int64  itsBLDataSize;   //# data size of a single baseline
-  int64  itsDataStart;    //# start of data in a block
-  int64  itsSampStart;    //# start of nsamples in a block
+  casacore::uInt  itsBlockSize;    //# size of a block containing a seqnr
+  long  itsBLDataSize;   //# data size of a single baseline
+  long  itsDataStart;    //# start of data in a block
+  long  itsSampStart;    //# start of nsamples in a block
   //# Buffer to hold nsample values.
   casacore::Block<casacore::uChar> itsNSampleBuf1;
   casacore::Block<casacore::uShort> itsNSampleBuf2;
@@ -347,7 +346,7 @@ private:
   double  itsMaxNrSample; //# weight = nsample / itsMaxNrSample;
   casacore::Record itsSpec;
 
-  uint itsVersion;        //# Version of LofarStMan MeasurementSet
+  unsigned int itsVersion;        //# Version of LofarStMan MeasurementSet
 };
 
 

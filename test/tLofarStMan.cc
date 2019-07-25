@@ -19,7 +19,7 @@
 //#
 //# $Id$
 
-#include <LofarStMan/LofarStMan.h>
+#include "LofarStMan/LofarStMan.h"
 #include <casacore/tables/Tables/TableDesc.h>
 #include <casacore/tables/Tables/SetupNewTab.h>
 #include <casacore/tables/Tables/Table.h>
@@ -476,8 +476,8 @@ void readTable (uInt nseq, uInt nant, uInt nchan, uInt npol,
         AlwaysAssertExit (allEQ (flagCol(row), flagExp));
         // Check ANTENNA1 and ANTENNA2
 
-        AlwaysAssertExit (ant1Col(row) == int32(k));
-        AlwaysAssertExit (ant2Col(row) == int32(j));
+        AlwaysAssertExit (ant1Col(row) == int(k));
+        AlwaysAssertExit (ant2Col(row) == int(j));
 
         dataExp += Complex(0.01, 0.02);
         weightExp += Float(1);

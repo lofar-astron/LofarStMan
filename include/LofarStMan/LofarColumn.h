@@ -24,8 +24,8 @@
 
 
 //# Includes
-#include <LofarStMan/LofarStMan.h>
-#include <Common/lofar_vector.h>
+#include "LofarStMan/LofarStMan.h"
+
 #include <casacore/tables/DataMan/StManColumn.h>
 #include <casacore/measures/Measures/MeasFrame.h>
 #include <casacore/measures/Measures/MDirection.h>
@@ -34,6 +34,8 @@
 #include <casacore/casa/Arrays/IPosition.h>
 #include <casacore/casa/Containers/Block.h>
 #include <casacore/casa/OS/Conversion.h>
+
+#include <vector>
 
 namespace LOFAR {
 
@@ -163,8 +165,8 @@ private:
   casacore::MDirection              itsPhaseDir;    //# could be SUN, etc.
   casacore::MDirection              itsJ2000Dir;    //# Phase dir in J2000
   casacore::MeasFrame               itsFrame;
-  vector<casacore::MBaseline>       itsAntMB;
-  vector<casacore::Vector<double> > itsAntUvw;
+  std::vector<casacore::MBaseline>       itsAntMB;
+  std::vector<casacore::Vector<double> > itsAntUvw;
   casacore::Block<bool>             itsUvwFilled;
   int                           itsLastBlNr;
   bool                          itsCanCalc;     //# false = UVW cannot be calc.
