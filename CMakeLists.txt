@@ -38,7 +38,6 @@ target_link_libraries(lofarstman PUBLIC ${CASACORE_LIBRARIES})
 add_subdirectory(test)
 include(GNUInstallDirs)
 
-message("Tammo says ${CMAKE_INSTALL_INCLUDEDIR}")
 install(TARGETS lofarstman
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
