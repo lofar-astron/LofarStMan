@@ -335,10 +335,10 @@ private:
   // The seqnr file (if present) is always memory-mapped because it is small.
   casacore::MMapIO*     itsSeqFile;
   bool   itsDoSwap;       //# True = byte-swapping is needed
-  casacore::uInt  itsBlockSize;    //# size of a block containing a seqnr
-  long  itsBLDataSize;   //# data size of a single baseline
-  long  itsDataStart;    //# start of data in a block
-  long  itsSampStart;    //# start of nsamples in a block
+  long long itsBlockSize;    //# size of a block containing a seqnr
+  long long itsBLDataSize;   //# data size of a single baseline
+  long long itsDataStart;    //# start of data in a block
+  long long itsSampStart;    //# start of nsamples in a block
   //# Buffer to hold nsample values.
   casacore::Block<casacore::uChar> itsNSampleBuf1;
   casacore::Block<casacore::uShort> itsNSampleBuf2;
