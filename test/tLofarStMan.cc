@@ -39,7 +39,6 @@
 #include <casacore/measures/Measures/MCPosition.h>
 #include <casacore/casa/Arrays/Array.h>
 #include <casacore/casa/Arrays/ArrayMath.h>
-#include <casacore/casa/Arrays/ArrayIO.h>
 #include <casacore/casa/Arrays/ArrayLogical.h>
 #include <casacore/casa/Containers/BlockIO.h>
 #include <casacore/casa/OS/RegularFile.h>
