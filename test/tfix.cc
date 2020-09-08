@@ -58,7 +58,7 @@ int main (int argc, char* argv[])
       return 0;
     }
     fixTable (argv[1]);
-  } catch (AipsError x) {
+  } catch (AipsError& x) {
     cout << "Caught an exception: " << x.getMesg() << endl;
     return 1;
   } 
