@@ -233,7 +233,7 @@ void LofarStMan::openFiles (bool writable)
   // Map the file with seqnrs.
   mapSeqFile();
   // Size the buffer if needed.
-  if (long(itsBuffer.size()) < itsBLDataSize) {
+  if ((long long) (itsBuffer.size()) < itsBLDataSize) {
     itsBuffer.resize (itsBLDataSize);
   }
   itsSpec.define ("useSeqnrFile", itsSeqFile!=0);
@@ -530,7 +530,7 @@ const uInt* LofarStMan::getNSample4 (uInt rownr, Bool)
 void* LofarStMan::readFile (uInt blocknr, uInt offset, uInt size)
 {
   AlwaysAssert (size <= itsBuffer.size(), AipsError);
-  itsRegFile->seek (Int(blocknr*itsBlockSize + offset));
+  itsRegFile->seek (blocknr*itsBlockSize + offset);
   itsRegFile->read (size, itsBuffer.storage());
   return itsBuffer.storage();
 }
@@ -544,7 +544,7 @@ void* LofarStMan::getBuffer (uInt size)
 void LofarStMan::writeFile (uInt blocknr, uInt offset, uInt size)
 {
   AlwaysAssert (size <= itsBuffer.size(), AipsError);
-  itsRegFile->seek (Int(blocknr*itsBlockSize + offset));
+  itsRegFile->seek (blocknr*itsBlockSize + offset);
   itsRegFile->write (size, itsBuffer.storage());
 }
 
