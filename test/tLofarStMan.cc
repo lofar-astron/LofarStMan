@@ -187,7 +187,7 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
         // Use baselines 0,0, 1,0, 1,1 ... n,n (will be swapped by LofarStMan)
 	ant1[inx] = i;
 	ant2[inx] = j;
-      } 
+      }
       ++inx;
     }
   }
@@ -219,14 +219,14 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
        << "  useSeqFile=" << useSeqFile << endl;
 
   // Now create the data file.
-  RegularFileIO file(RegularFile("tLofarStMan_tmp.data/table.f0data"),
-                     ByteIO::New);
+  auto file = std::make_shared<RegularFileIO>(
+    RegularFile("tLofarStMan_tmp.data/table.f0data"), ByteIO::New);
   // Write in canonical (big endian) or local format.
   TypeIO* cfile;
   if (bigEndian) {
-    cfile = new CanonicalIO(&file);
+    cfile = new CanonicalIO(file);
   } else {
-    cfile = new RawIO(&file);
+    cfile = new RawIO(file);
   }
 
   // Create and initialize data and nsample.
@@ -277,13 +277,13 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
     if (align2.size() > 0) {
       cfile->write (align2.size(), align2.storage());
     }
-    
+
     if (myStManVersion < 2) {
       for (uInt j=0; j<nrbl; ++j) {
 	cfile->write (nsample2.size(), nsample2.data());
 	nsample2 += uShort(1);
       }
-    } else {      
+    } else {
       for (uInt j=0; j<nrbl; ++j) {
 	switch (myNrBytesPerValidSamples) {
 	case 1:
@@ -314,13 +314,13 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
   if (useSeqFile  &&  myStManVersion > 1) {
     TypeIO* sfile = 0;
     // create seperate file for sequence numbers if version > 1
-    RegularFileIO file(RegularFile("tLofarStMan_tmp.data/table.f0seqnr"),
-		       ByteIO::New);
+    auto file = std::make_shared<RegularFileIO>(
+      RegularFile("tLofarStMan_tmp.data/table.f0seqnr"), ByteIO::New);
     // Write in canonical (big endian) or local format.
     if (bigEndian) {
-      sfile = new CanonicalIO(&file);
+      sfile = new CanonicalIO(file);
     } else {
-      sfile = new RawIO(&file);
+      sfile = new RawIO(file);
     }
     for (uInt i=0; i<nseq; ++i) {
       sfile->write (1, &i);
@@ -430,7 +430,7 @@ void readTable (uInt nseq, uInt nant, uInt nchan, uInt npol,
   // Loop through all rows in the table and check the data.
   uInt row=0;
   for (uInt i=0; i<nseq; ++i) {
-    
+
     for (uInt j=0; j<nant; ++j) {
       for (uInt k=0; k<nant; ++k) {
 
@@ -465,7 +465,7 @@ void readTable (uInt nseq, uInt nant, uInt nchan, uInt npol,
 
 	    std::cout << "weights: " << std::endl;
 	    std::cout << weights(IPosition(2,p,0), IPosition(2,p,nchan-1)) << std::endl;
-	  
+
 	    std::cout << "weigthExp: " << std::endl;
 	    std::cout << weightExp/Float(32768) << std:: endl;
 
@@ -618,6 +618,6 @@ int main (int argc, char* argv[])
   } catch (AipsError& x) {
     cout << "Caught an exception: " << x.getMesg() << endl;
     return 1;
-  } 
+  }
   return 0;                           // exit with success status
 }
