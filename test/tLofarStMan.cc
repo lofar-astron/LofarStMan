@@ -50,6 +50,7 @@
 #include <casacore/casa/Exceptions/Error.h>
 #include <casacore/casa/iostream.h>
 #include <casacore/casa/sstream.h>
+#include <casacore/casa/version.h>
 
 using namespace LOFAR;
 using namespace casacore;
@@ -223,11 +224,20 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
     RegularFile("tLofarStMan_tmp.data/table.f0data"), ByteIO::New);
   // Write in canonical (big endian) or local format.
   TypeIO* cfile;
+#if CASACORE_MAJOR_VERSION < 3 || \
+    (CASACORE_MAJOR_VERSION == 3 && CASACORE_MINOR_VERSION < 6)
+  if (bigEndian) {
+    cfile = new CanonicalIO(file.get());
+  } else {
+    cfile = new RawIO(file.get());
+  }
+#else
   if (bigEndian) {
     cfile = new CanonicalIO(file);
   } else {
     cfile = new RawIO(file);
   }
+#endif
 
   // Create and initialize data and nsample.
   Array<Complex> data(IPosition(2,npol,nchan));
@@ -317,11 +327,20 @@ void createData (uInt nseq, uInt nant, uInt nchan, uInt npol,
     auto file = std::make_shared<RegularFileIO>(
       RegularFile("tLofarStMan_tmp.data/table.f0seqnr"), ByteIO::New);
     // Write in canonical (big endian) or local format.
+#if CASACORE_MAJOR_VERSION < 3 || \
+    (CASACORE_MAJOR_VERSION == 3 && CASACORE_MINOR_VERSION < 6)
+    if (bigEndian) {
+      sfile = new CanonicalIO(file.get());
+    } else {
+      sfile = new RawIO(file.get());
+    }
+#else
     if (bigEndian) {
       sfile = new CanonicalIO(file);
     } else {
       sfile = new RawIO(file);
     }
+#endif
     for (uInt i=0; i<nseq; ++i) {
       sfile->write (1, &i);
     }
