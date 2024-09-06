@@ -1,0 +1,31 @@
+name: Build and test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Apt install required packages
+      run: |
+        sudo apt install -qq -y casacore-dev cmake libhdf5-dev > /dev/null
+    - name: Get measures data
+      run: |
+        mkdir ${HOME}/casacore-data && pushd ${HOME}/casacore-data
+        wget -q ftp://anonymous@ftp.astron.nl/outgoing/Measures/WSRT_Measures.ztar
+        tar xf WSRT_Measures.ztar
+        echo "measures.directory: ~/casacore-data" > ${HOME}/.casarc
+        popd
+    - name: Build and install
+      run: |
+        mkdir build
+        pushd build
+        cmake ..
+        cmake --build .
+        popd
+    - name: Test PyBDSF
+      run: |
+        pushd build
+        make test
+        popd
