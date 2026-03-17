@@ -4,12 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Apt install required packages
       run: |
-        sudo apt install -qq -y casacore-dev cmake libhdf5-dev > /dev/null
+        sudo apt update && sudo apt install -qq -y casacore-dev cmake libhdf5-dev > /dev/null
     - name: Get measures data
       run: |
         mkdir ${HOME}/casacore-data && pushd ${HOME}/casacore-data
