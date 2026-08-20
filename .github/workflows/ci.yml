@@ -4,17 +4,16 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v4
     - name: Apt install required packages
       run: |
-        sudo apt update
-        sudo apt install -y casacore-dev cmake libhdf5-dev
+        sudo apt update && sudo apt install -qq -y casacore-dev cmake libhdf5-dev > /dev/null
     - name: Get measures data
       run: |
         mkdir ${HOME}/casacore-data && pushd ${HOME}/casacore-data
-        wget -q https://iers.astron.nl/WSRT_Measures.ztar
+        wget -q ftp://anonymous@ftp.astron.nl/outgoing/Measures/WSRT_Measures.ztar
         tar xf WSRT_Measures.ztar
         echo "measures.directory: ~/casacore-data" > ${HOME}/.casarc
         popd
@@ -25,7 +24,7 @@ jobs:
         cmake ..
         cmake --build .
         popd
-    - name: Test LofarStMan
+    - name: Test PyBDSF
       run: |
         pushd build
         make test
