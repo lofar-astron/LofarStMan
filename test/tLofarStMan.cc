@@ -413,7 +413,7 @@ void readTable (uInt nseq, uInt nant, uInt nchan, uInt npol,
   // Open the table and check if #rows is as expected.
   Table tab("tLofarStMan_tmp.data");
   uInt nrow = tab.nrow();
-  AlwaysAssertExit (nrow = nseq*nbasel);
+  AlwaysAssertExit (nrow == nseq*nbasel);
   AlwaysAssertExit (!tab.canAddRow());
   AlwaysAssertExit (!tab.canRemoveRow());
   AlwaysAssertExit (tab.canRemoveColumn(Vector<String>(1, "DATA")));
