@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project(LofarStMan VERSION 1.0.2)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
@@ -30,7 +33,6 @@ target_include_directories(lofarstman
 	$<INSTALL_INTERFACE:include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
-target_compile_features(lofarstman PRIVATE cxx_std_20)
 
 target_link_libraries(lofarstman PUBLIC ${CASACORE_LIBRARIES})
 
