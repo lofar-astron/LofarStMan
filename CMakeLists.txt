@@ -1,6 +1,6 @@
 # $Id: CMakeLists.txt 14280 2009-10-16 13:48:46Z loose $
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 
 project(LofarStMan VERSION 1.0.2)
 
