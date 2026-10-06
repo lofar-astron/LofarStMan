@@ -526,11 +526,21 @@ const unsigned int* LofarStMan::getNSample4 (unsigned int rownr, bool)
   return to;
 }
 
+template<typename NumericType>
+inline static void seekDispatcher(casacore::FiledesIO& file, NumericType offset)
+{
+  // Older versions use long long as the parameter and return value for seek, whereas
+  // newer versions use int64_t. The parameter type equals the return value, even for the
+  // return value of the seek(int) overload. Hence, we cast the parameter to this type
+  // to avoid compiler errors due to overload ambiguity.
+  using OffsetType = decltype(file.seek(0));
+  file.seek(static_cast<OffsetType>(offset));
+}
 
 void* LofarStMan::readFile (unsigned int blocknr, unsigned int offset, unsigned int size)
 {
   AlwaysAssert (size <= itsBuffer.size(), AipsError);
-  itsRegFile->seek (blocknr*itsBlockSize + offset);
+  seekDispatcher (*itsRegFile, blocknr*itsBlockSize + offset);
   itsRegFile->read (size, itsBuffer.storage());
   return itsBuffer.storage();
 }
@@ -544,7 +554,7 @@ void* LofarStMan::getBuffer (unsigned int size)
 void LofarStMan::writeFile (unsigned int blocknr, unsigned int offset, unsigned int size)
 {
   AlwaysAssert (size <= itsBuffer.size(), AipsError);
-  itsRegFile->seek (blocknr*itsBlockSize + offset);
+  seekDispatcher(*itsRegFile, blocknr*itsBlockSize + offset);
   itsRegFile->write (size, itsBuffer.storage());
 }
 
