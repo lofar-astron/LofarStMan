@@ -29,6 +29,7 @@
 #include <casacore/casa/Containers/Block.h>
 #include <casacore/casa/Containers/Record.h>
 
+#include <cstdint>
 #include <vector>
 
 namespace LOFAR {
@@ -113,7 +114,7 @@ class LofarColumn;
 //# </todo>
 
 
-class LofarStMan : public casacore::DataManager
+class LofarStMan final : public casacore::DataManager
 {
 public:
     // Create a Lofar storage manager with the given name.
@@ -127,35 +128,35 @@ public:
   ~LofarStMan();
 
   // Clone this object.
-  virtual casacore::DataManager* clone() const;
+  virtual casacore::DataManager* clone() const override;
   
   // Get the type name of the data manager (i.e. LofarStMan).
-  virtual casacore::String dataManagerType() const;
+  virtual casacore::String dataManagerType() const override;
   
   // Get the name given to the storage manager (in the constructor).
-  virtual casacore::String dataManagerName() const;
+  virtual casacore::String dataManagerName() const override;
   
   // Record a record containing data manager specifications.
-  virtual casacore::Record dataManagerSpec() const;
+  virtual casacore::Record dataManagerSpec() const override;
 
   // Get the number of rows in this storage manager.
   unsigned int getNRow() const
     { return itsNrRows; }
   
   // The storage manager is not a regular one.
-  virtual casacore::Bool isRegular() const;
+  bool isRegular() const override;
   
   // The storage manager cannot add rows.
-  virtual casacore::Bool canAddRow() const;
+  bool canAddRow() const override;
   
   // The storage manager cannot delete rows.
-  virtual casacore::Bool canRemoveRow() const;
+  bool canRemoveRow() const override;
   
   // The storage manager can add columns, which does not really do something.
-  virtual casacore::Bool canAddColumn() const;
+  bool canAddColumn() const override;
   
   // Columns can be removed, but it does not do anything at all.
-  virtual casacore::Bool canRemoveColumn() const;
+  bool canRemoveColumn() const override;
   
   // Make the object from the type name string.
   // This function gets registered in the DataManager "constructor" map.
@@ -186,9 +187,9 @@ public:
   void getData (unsigned int rownr, casacore::Complex* buf);
   void putData (unsigned int rownr, const casacore::Complex* buf);
 
-  const casacore::uChar*  getNSample1 (unsigned int rownr, bool swapIfNeeded);
-  const casacore::uShort* getNSample2 (unsigned int rownr, bool swapIfNeeded);
-  const casacore::uInt*   getNSample4 (unsigned int rownr, bool swapIfNeeded); 
+  const unsigned char*  getNSample1 (unsigned int rownr, bool swapIfNeeded);
+  const unsigned short* getNSample2 (unsigned int rownr, bool swapIfNeeded);
+  const unsigned int*   getNSample4 (unsigned int rownr, bool swapIfNeeded);
   // </group>
 
   unsigned int getLofarStManVersion() const
@@ -205,70 +206,70 @@ private:
   LofarStMan& operator= (const LofarStMan& that);
   
   // Flush and optionally fsync the data.
-  // It does nothing, and returns False.
-  virtual casacore::Bool flush (casacore::AipsIO&, casacore::Bool doFsync);
+  // It does nothing, and returns false.
+  bool flush (casacore::AipsIO&, bool doFsync) override;
   
   // Let the storage manager create files as needed for a new table.
   // This allows a column with an indirect array to create its file.
-  virtual void create (casacore::uInt nrrow);
+  void create (unsigned int nrrow) override;
   
   // Open the storage manager file for an existing table.
   // Return the number of rows in the data file.
   // <group>
-  virtual void open (casacore::uInt nrrow, casacore::AipsIO&); //# should never be called
-  virtual casacore::uInt open1 (casacore::uInt nrrow, casacore::AipsIO&);
+  void open (unsigned int nrrow, casacore::AipsIO&) override; //# should never be called
+  unsigned int open1 (unsigned int nrrow, casacore::AipsIO&) override;
   // </group>
 
   // Prepare the columns (needed for UvwColumn).
-  virtual void prepare();
+  void prepare() override;
 
   // Resync the storage manager with the new file contents.
   // It does nothing.
   // <group>
-  virtual void resync (casacore::uInt nrrow);   //# should never be called
-  virtual casacore::uInt resync1 (casacore::uInt nrrow);
+  void resync (unsigned int nrrow) override;   //# should never be called
+  unsigned int resync1 (unsigned int nrrow) override;
   // </group>
   
   // Reopen the storage manager files for read/write.
   // It does nothing.
-  virtual void reopenRW();
+  void reopenRW() override;
   
   // The data manager will be deleted (because all its columns are
   // requested to be deleted).
   // So clean up the things needed (e.g. delete files).
-  virtual void deleteManager();
+  void deleteManager() override;
 
   // Add rows to the storage manager.
   // It cannot do it, so throws an exception.
-  virtual void addRow (casacore::uInt nrrow);
+  void addRow (unsigned int nrrow) override;
   
   // Delete a row from all columns.
   // It cannot do it, so throws an exception.
-  virtual void removeRow (casacore::uInt rowNr);
+  void removeRow (unsigned int rowNr) override;
   
   // Do the final addition of a column.
   // It won't do anything.
-  virtual void addColumn (casacore::DataManagerColumn*);
+  void addColumn (casacore::DataManagerColumn*) override;
   
   // Remove a column from the data file.
   // It won't do anything.
-  virtual void removeColumn (casacore::DataManagerColumn*);
+  void removeColumn (casacore::DataManagerColumn*) override;
   
   // Create a column in the storage manager on behalf of a table column.
   // The caller has to delete the newly created object.
   // <group>
   // Create a scalar column.
-  virtual casacore::DataManagerColumn* makeScalarColumn (const casacore::String& aName,
+  casacore::DataManagerColumn* makeScalarColumn (const casacore::String& aName,
 					       int aDataType,
-					       const casacore::String& aDataTypeID);
+					       const casacore::String& aDataTypeID) override;
   // Create a direct array column.
-  virtual casacore::DataManagerColumn* makeDirArrColumn (const casacore::String& aName,
+  casacore::DataManagerColumn* makeDirArrColumn (const casacore::String& aName,
 					       int aDataType,
-					       const casacore::String& aDataTypeID);
+					       const casacore::String& aDataTypeID) override;
   // Create an indirect array column.
-  virtual casacore::DataManagerColumn* makeIndArrColumn (const casacore::String& aName,
+  casacore::DataManagerColumn* makeIndArrColumn (const casacore::String& aName,
 					       int aDataType,
-					       const casacore::String& aDataTypeID);
+					       const casacore::String& aDataTypeID) override;
   // </group>
 
   // Initialize by reading the header info.
@@ -287,29 +288,29 @@ private:
   void closeFiles();
 
   // Get a pointer to data to be read.
-  const void* getReadPointer (casacore::uInt blocknr, casacore::uInt offset,
-                              casacore::uInt size)
+  const void* getReadPointer (unsigned int blocknr, unsigned int offset,
+                              unsigned int size)
   {
     return readFile (blocknr, offset, size);
   }
 
   // Get a pointer where data can be written.
-  void* getWritePointer (casacore::uInt /*blocknr*/, casacore::uInt /*offset*/,
-                         casacore::uInt size)
+  void* getWritePointer (unsigned int /*blocknr*/, unsigned int /*offset*/,
+                         unsigned int size)
   {
     return getBuffer (size);
   }
 
   // Write the data. It is a no-op if mmap is used.
-  void writeData (casacore::uInt blocknr, casacore::uInt offset, casacore::uInt size)
+  void writeData (unsigned int blocknr, unsigned int offset, unsigned int size)
   {
     writeFile (blocknr, offset, size);
   }
 
   // Read or write the data for regular files.
-  void* readFile  (casacore::uInt blocknr, casacore::uInt offset, casacore::uInt size);
-  void* getBuffer (casacore::uInt size);
-  void  writeFile (casacore::uInt blocknr, casacore::uInt offset, casacore::uInt size);
+  void* readFile  (unsigned int blocknr, unsigned int offset, unsigned int size);
+  void* getBuffer (unsigned int size);
+  void  writeFile (unsigned int blocknr, unsigned int offset, unsigned int size);
 
 
   //# Declare member variables.
@@ -334,15 +335,15 @@ private:
   casacore::Block<char> itsBuffer;   //# buffer of size itsBLDataSize for regular IO
   // The seqnr file (if present) is always memory-mapped because it is small.
   casacore::MMapIO*     itsSeqFile;
-  bool   itsDoSwap;       //# True = byte-swapping is needed
-  long long itsBlockSize;    //# size of a block containing a seqnr
-  long long itsBLDataSize;   //# data size of a single baseline
-  long long itsDataStart;    //# start of data in a block
-  long long itsSampStart;    //# start of nsamples in a block
+  bool   itsDoSwap;       //# true = byte-swapping is needed
+  int64_t itsBlockSize;    //# size of a block containing a seqnr
+  int64_t itsBLDataSize;   //# data size of a single baseline
+  int64_t itsDataStart;    //# start of data in a block
+  int64_t itsSampStart;    //# start of nsamples in a block
   //# Buffer to hold nsample values.
-  casacore::Block<casacore::uChar> itsNSampleBuf1;
-  casacore::Block<casacore::uShort> itsNSampleBuf2;
-  casacore::Block<casacore::uInt>   itsNSampleBuf4;
+  casacore::Block<unsigned char> itsNSampleBuf1;
+  casacore::Block<unsigned short> itsNSampleBuf2;
+  casacore::Block<unsigned int>   itsNSampleBuf4;
   double  itsMaxNrSample; //# weight = nsample / itsMaxNrSample;
   casacore::Record itsSpec;
 

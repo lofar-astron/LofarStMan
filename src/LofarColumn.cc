@@ -47,9 +47,9 @@ namespace LOFAR {
 
   LofarColumn::~LofarColumn()
   {}
-  Bool LofarColumn::isWritable() const
+  bool LofarColumn::isWritable() const
   {
-    return False;
+    return false;
   }
   void LofarColumn::setShapeColumn (const IPosition&)
   {}
@@ -58,12 +58,12 @@ namespace LOFAR {
 
   Ant1Column::~Ant1Column()
   {}
-  void Ant1Column::getIntV (uInt rownr, Int* dataPtr)
+  void Ant1Column::getIntV (unsigned int rownr, int* dataPtr)
   {
     // Fill ColumnCache object.
-    const Block<Int>& ants = itsParent->ant1();
+    const Block<int>& ants = itsParent->ant1();
     columnCache().setIncrement (1);
-    uInt strow = rownr / ants.size() * ants.size();
+    unsigned int strow = rownr / ants.size() * ants.size();
     columnCache().setIncrement (1);
     columnCache().set (strow, strow + ants.size() - 1, ants.storage());
     *dataPtr = ants[rownr-strow];
@@ -71,11 +71,11 @@ namespace LOFAR {
 
   Ant2Column::~Ant2Column()
   {}
-  void Ant2Column::getIntV (uInt rownr, Int* dataPtr)
+  void Ant2Column::getIntV (unsigned int rownr, int* dataPtr)
   {
     // Fill ColumnCache object.
-    const Block<Int>& ants = itsParent->ant2();
-    uInt strow = rownr / ants.size() * ants.size();
+    const Block<int>& ants = itsParent->ant2();
+    unsigned int strow = rownr / ants.size() * ants.size();
     columnCache().setIncrement (1);
     columnCache().set (strow, strow + ants.size() - 1, ants.storage());
     *dataPtr = ants[rownr-strow];
@@ -83,14 +83,14 @@ namespace LOFAR {
 
   TimeColumn::~TimeColumn()
   {}
-  void TimeColumn::getdoubleV (uInt rownr, Double* dataPtr)
+  void TimeColumn::getdoubleV (unsigned int rownr, double* dataPtr)
   {
     // Get time of the block containing this row.
-    uInt nrbasel = itsParent->ant1().size();
-    uInt blnr = rownr / nrbasel;
+    unsigned int nrbasel = itsParent->ant1().size();
+    unsigned int blnr = rownr / nrbasel;
     itsValue = itsParent->time (blnr);
     // Fill ColumnCache object.
-    uInt strow = blnr * nrbasel;
+    unsigned int strow = blnr * nrbasel;
     columnCache().setIncrement (0);
     columnCache().set (strow, strow + nrbasel - 1, &itsValue);
     *dataPtr = itsValue;
@@ -98,7 +98,7 @@ namespace LOFAR {
 
   IntervalColumn::~IntervalColumn()
   {}
-  void IntervalColumn::getdoubleV (uInt, Double* dataPtr)
+  void IntervalColumn::getdoubleV (unsigned int, double* dataPtr)
   {
     itsValue = itsParent->interval();
     columnCache().setIncrement (0);
@@ -108,7 +108,7 @@ namespace LOFAR {
 
   ZeroColumn::~ZeroColumn()
   {}
-  void ZeroColumn::getIntV (uInt, Int* dataPtr)
+  void ZeroColumn::getIntV (unsigned int, int* dataPtr)
   {
     itsValue = 0;
     columnCache().setIncrement (0);
@@ -118,9 +118,9 @@ namespace LOFAR {
 
   FalseColumn::~FalseColumn()
   {}
-  void FalseColumn::getBoolV (uInt, Bool* dataPtr)
+  void FalseColumn::getBoolV (unsigned int, bool* dataPtr)
   {
-    itsValue = False;
+    itsValue = false;
     columnCache().setIncrement (0);
     columnCache().set (0, itsParent->getNRow()-1, &itsValue);
     *dataPtr = 0;
@@ -140,7 +140,7 @@ namespace LOFAR {
       int nrant = anttab.nrow();
       ROScalarMeasColumn<MPosition> antcol (anttab, "POSITION");
       MPosition arrayPos;
-      Vector<Double> pos0;
+      Vector<double> pos0;
       for (int i=0; i<nrant; ++i) {
         // Read antenna position and convert to ITRF.
         MPosition mpos = MPosition::Convert (antcol(i), MPosition::ITRF)();
@@ -151,7 +151,7 @@ namespace LOFAR {
         if (i == nrant/2) {
           arrayPos = mpos;
         }
-        Vector<Double> pos = mpos.getValue().getVector();
+        Vector<double> pos = mpos.getValue().getVector();
         MVPosition mvpos((pos[0] - pos0[0]),
                          (pos[1] - pos0[1]),
                          (pos[2] - pos0[2]));
@@ -174,11 +174,11 @@ namespace LOFAR {
       itsUvwFilled = false;
     }
   }
-  IPosition UvwColumn::shape (uInt)
+  IPosition UvwColumn::shape (unsigned int)
   {
     return IPosition(1,3);
   }
-  void UvwColumn::getArraydoubleV (uInt rownr, Array<Double>* dataPtr)
+  void UvwColumn::getArraydoubleV (unsigned int rownr, Array<double>* dataPtr)
   {
     if (!itsCanCalc) {
       *dataPtr = 0.;
@@ -192,7 +192,7 @@ namespace LOFAR {
       // If a different block (i.e. time), we have to calculate the UVWs.
       if (blnr != itsLastBlNr) {
         itsLastBlNr  = blnr;
-        Quantum<Double> tm(itsParent->time(blnr), "s");
+        Quantum<double> tm(itsParent->time(blnr), "s");
         itsFrame.set (MEpoch(MVEpoch(tm.get("d").getValue()), MEpoch::UTC));
         itsJ2000Dir = MDirection::Convert (itsPhaseDir,
                                            MDirection::Ref(MDirection::J2000,
@@ -221,24 +221,24 @@ namespace LOFAR {
 
   DataColumn::~DataColumn()
   {}
-  Bool DataColumn::isWritable() const
+  bool DataColumn::isWritable() const
   {
-    return True;
+    return true;
   }
-  IPosition DataColumn::shape (uInt)
+  IPosition DataColumn::shape (unsigned int)
   {
     return IPosition(2, itsParent->npol(), itsParent->nchan());
   }
-  void DataColumn::getArrayComplexV (uInt rownr, Array<Complex>* dataPtr)
+  void DataColumn::getArrayComplexV (unsigned int rownr, Array<Complex>* dataPtr)
   {
-    Bool deleteIt;
+    bool deleteIt;
     Complex* data = dataPtr->getStorage(deleteIt);
     itsParent->getData (rownr, data);
     dataPtr->putStorage (data, deleteIt);
   }
-  void DataColumn::putArrayComplexV (uInt rownr, const Array<Complex>* dataPtr)
+  void DataColumn::putArrayComplexV (unsigned int rownr, const Array<Complex>* dataPtr)
   {
-    Bool deleteIt;
+    bool deleteIt;
     const Complex* data = dataPtr->getStorage(deleteIt);
     itsParent->putData (rownr, data);
     dataPtr->freeStorage (data, deleteIt);
@@ -246,32 +246,32 @@ namespace LOFAR {
 
   FlagColumn::~FlagColumn()
   {}
-  IPosition FlagColumn::shape (uInt)
+  IPosition FlagColumn::shape (unsigned int)
   {
     return IPosition(2, itsParent->npol(), itsParent->nchan());
   }
-  void FlagColumn::getArrayBoolV (uInt rownr, Array<Bool>* dataPtr)
+  void FlagColumn::getArrayBoolV (unsigned int rownr, Array<bool>* dataPtr)
   {
-    uInt npol = itsParent->npol();
+    unsigned int npol = itsParent->npol();
     
     switch(itsParent->getLofarStManVersion()) {
     case 1:
     {
-      const uShort* data = itsParent->getNSample2 (rownr, False);
-      const uShort* dataEnd = data + itsParent->nchan();
+      const unsigned short* data = itsParent->getNSample2 (rownr, false);
+      const unsigned short* dataEnd = data + itsParent->nchan();
 
       if (dataPtr->contiguousStorage()) {
-	for (Array<Bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
-	  Bool flagged = (*data == 0);
-	  for (uInt i=0; i<npol; ++i, ++iter) {
+	for (Array<bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
+	  bool flagged = (*data == 0);
+	  for (unsigned int i=0; i<npol; ++i, ++iter) {
 	    *iter = flagged;
 	  }
 	}
       } else {
-	for (Array<Bool>::iterator iter=dataPtr->begin();
+	for (Array<bool>::iterator iter=dataPtr->begin();
 	     data<dataEnd; ++data, ++iter) {
-	  Bool flagged = (*data == 0);
-	  for (uInt i=0; i<npol; ++i, ++iter) {
+	  bool flagged = (*data == 0);
+	  for (unsigned int i=0; i<npol; ++i, ++iter) {
 	    *iter = flagged;
 	  }
 	}
@@ -284,21 +284,21 @@ namespace LOFAR {
 
       case 1:
       {
-	const uChar* data    = itsParent->getNSample1 (rownr, False);
-	const uChar* dataEnd = data + itsParent->nchan();
+	const unsigned char* data    = itsParent->getNSample1 (rownr, false);
+	const unsigned char* dataEnd = data + itsParent->nchan();
 	
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	  for (Array<bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
 	} else {
-	  for (Array<Bool>::iterator iter=dataPtr->begin();
+	  for (Array<bool>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
@@ -307,21 +307,21 @@ namespace LOFAR {
 
       case 2:
       {
-	const uShort* data = itsParent->getNSample2 (rownr, False);
-	const uShort* dataEnd = data + itsParent->nchan();
+	const unsigned short* data = itsParent->getNSample2 (rownr, false);
+	const unsigned short* dataEnd = data + itsParent->nchan();
 	
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	  for (Array<bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
 	} else {
-	  for (Array<Bool>::iterator iter=dataPtr->begin();
+	  for (Array<bool>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
@@ -330,21 +330,21 @@ namespace LOFAR {
 	
       case 4:
       {
-	const uInt* data = itsParent->getNSample4 (rownr, False);
-	const uInt* dataEnd = data + itsParent->nchan();
+	const unsigned int* data = itsParent->getNSample4 (rownr, false);
+	const unsigned int* dataEnd = data + itsParent->nchan();
 
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	  for (Array<bool>::contiter iter=dataPtr->cbegin(); data<dataEnd; ++data) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
 	} else {
-	  for (Array<Bool>::iterator iter=dataPtr->begin();
+	  for (Array<bool>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Bool flagged = (*data == 0);
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    bool flagged = (*data == 0);
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = flagged;
 	    }
 	  }
@@ -363,56 +363,56 @@ namespace LOFAR {
 
   WeightColumn::~WeightColumn()
   {}
-  IPosition WeightColumn::shape (uInt)
+  IPosition WeightColumn::shape (unsigned int)
   {
     return IPosition(1, itsParent->npol());
   }
-  void WeightColumn::getArrayfloatV (uInt, Array<Float>* dataPtr)
+  void WeightColumn::getArrayfloatV (unsigned int, Array<float>* dataPtr)
   {
     *dataPtr = float(1);
   }
 
   SigmaColumn::~SigmaColumn()
   {}
-  IPosition SigmaColumn::shape (uInt)
+  IPosition SigmaColumn::shape (unsigned int)
   {
     return IPosition(1, itsParent->npol());
   }
-  void SigmaColumn::getArrayfloatV (uInt, Array<Float>* dataPtr)
+  void SigmaColumn::getArrayfloatV (unsigned int, Array<float>* dataPtr)
   {
     *dataPtr = float(1);
   }
 
   WSpectrumColumn::~WSpectrumColumn()
   {}
-  IPosition WSpectrumColumn::shape (uInt)
+  IPosition WSpectrumColumn::shape (unsigned int)
   {
     return IPosition(2, itsParent->npol(), itsParent->nchan());
   }
-  void WSpectrumColumn::getArrayfloatV (uInt rownr, Array<Float>* dataPtr)
+  void WSpectrumColumn::getArrayfloatV (unsigned int rownr, Array<float>* dataPtr)
   {
     double maxn = itsParent->maxnSample();
-    uInt npol = itsParent->npol();
+    unsigned int npol = itsParent->npol();
 
     switch (itsParent->getLofarStManVersion()) {
     case 1:
     {
-      const uShort* data    = itsParent->getNSample2 (rownr, True);
-      const uShort* dataEnd = data + itsParent->nchan();
+      const unsigned short* data    = itsParent->getNSample2 (rownr, true);
+      const unsigned short* dataEnd = data + itsParent->nchan();
 
       if (dataPtr->contiguousStorage()) {
-	for (Array<Float>::contiter iter=dataPtr->cbegin();
+	for (Array<float>::contiter iter=dataPtr->cbegin();
 	     data<dataEnd; ++data) {
-	  Float weight = *data / maxn;
-	  for (uInt i=0; i<npol; ++i, ++iter) {
+	  float weight = *data / maxn;
+	  for (unsigned int i=0; i<npol; ++i, ++iter) {
 	    *iter = weight;
 	  }
 	}
       } else {
-	for (Array<Float>::iterator iter=dataPtr->begin();
+	for (Array<float>::iterator iter=dataPtr->begin();
 	     data<dataEnd; ++data, ++iter) {
-	  Float weight = *data / maxn;
-	  for (uInt i=0; i<npol; ++i, ++iter) {
+	  float weight = *data / maxn;
+	  for (unsigned int i=0; i<npol; ++i, ++iter) {
 	    *iter = weight;
 	  }
 	}
@@ -424,22 +424,22 @@ namespace LOFAR {
       switch (itsParent->getNrBytesPerNrValidSamples()) {
       case 1:
       {
-	const uChar* data    = itsParent->getNSample1(rownr, True);
-	const uChar* dataEnd = data + itsParent->nchan();
+	const unsigned char* data    = itsParent->getNSample1(rownr, true);
+	const unsigned char* dataEnd = data + itsParent->nchan();
 	
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Float>::contiter iter=dataPtr->cbegin();
+	  for (Array<float>::contiter iter=dataPtr->cbegin();
 	       data<dataEnd; ++data) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
 	} else {
-	  for (Array<Float>::iterator iter=dataPtr->begin();
+	  for (Array<float>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
@@ -447,22 +447,22 @@ namespace LOFAR {
       } break;
       case 2:
       {
-	const uShort* data    = itsParent->getNSample2(rownr, True);
-	const uShort* dataEnd = data + itsParent->nchan();
+	const unsigned short* data    = itsParent->getNSample2(rownr, true);
+	const unsigned short* dataEnd = data + itsParent->nchan();
 	
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Float>::contiter iter=dataPtr->cbegin();
+	  for (Array<float>::contiter iter=dataPtr->cbegin();
 	       data<dataEnd; ++data) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
 	} else {
-	  for (Array<Float>::iterator iter=dataPtr->begin();
+	  for (Array<float>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
@@ -471,22 +471,22 @@ namespace LOFAR {
 
       case 4:
       {
-	const uInt* data    = itsParent->getNSample4(rownr, True);
-	const uInt* dataEnd = data + itsParent->nchan();
+	const unsigned int* data    = itsParent->getNSample4(rownr, true);
+	const unsigned int* dataEnd = data + itsParent->nchan();
 	
 	if (dataPtr->contiguousStorage()) {
-	  for (Array<Float>::contiter iter=dataPtr->cbegin();
+	  for (Array<float>::contiter iter=dataPtr->cbegin();
 	       data<dataEnd; ++data) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
 	} else {
-	  for (Array<Float>::iterator iter=dataPtr->begin();
+	  for (Array<float>::iterator iter=dataPtr->begin();
 	       data<dataEnd; ++data, ++iter) {
-	    Float weight = *data / maxn;
-	    for (uInt i=0; i<npol; ++i, ++iter) {
+	    float weight = *data / maxn;
+	    for (unsigned int i=0; i<npol; ++i, ++iter) {
 	      *iter = weight;
 	    }
 	  }
@@ -503,11 +503,11 @@ namespace LOFAR {
 
   FlagCatColumn::~FlagCatColumn()
   {}
-  Bool FlagCatColumn::isShapeDefined (uInt)
+  bool FlagCatColumn::isShapeDefined (unsigned int)
   {
-    return False;
+    return false;
   }
-  IPosition FlagCatColumn::shape (uInt)
+  IPosition FlagCatColumn::shape (unsigned int)
   {
     throw DataManError ("LofarStMan: no data in column FLAG_CATEGORY");
   }

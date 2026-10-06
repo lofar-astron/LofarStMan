@@ -57,26 +57,26 @@ using namespace std;
 //             16=read in baseline order (cache (nant+1)/2 baselines)
 // 9. file extension; name is tIOPerf_tmp.data<ext>
 
-uInt nalign (uInt size, uInt alignment)
+unsigned int nalign (unsigned int size, unsigned int alignment)
 {
   return (size + alignment-1) / alignment * alignment;
 }
 
-void writeData (uInt nseq, uInt nant, uInt nchan, uInt npol,
-                uInt alignment, const String& ext)
+void writeData (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+                unsigned int alignment, const String& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(nalign(npol*nchan*nrbl*8, alignment), 0);
-  Block<Char> seqnr(nalign(4, alignment), 0);
-  Block<Char> samples(nalign(nchan*npol*nrbl*2, alignment), 0);
+  Block<char> data(nalign(npol*nchan*nrbl*8, alignment), 0);
+  Block<char> seqnr(nalign(4, alignment), 0);
+  Block<char> samples(nalign(nchan*npol*nrbl*2, alignment), 0);
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(),
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(),
                  O_RDWR | O_CREAT | O_TRUNC, 0644);
   // Write all data.
-  Int64 leng=0;
+  int64_t leng=0;
   Timer timer;
-  for (uInt i=0; i<nseq; ++i) {
+  for (unsigned int i=0; i<nseq; ++i) {
     leng += write (fd, seqnr.storage(), seqnr.size());
     leng += write (fd, data.storage(), data.size());
     leng += write (fd, samples.storage(), samples.size());
@@ -88,30 +88,30 @@ void writeData (uInt nseq, uInt nant, uInt nchan, uInt npol,
   cout << "  wrote " << leng << " bytes" << endl;
 }
 
-void writeData2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-                 uInt alignment, uInt nblperfile, const String& ext)
+void writeData2 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+                 unsigned int alignment, unsigned int nblperfile, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(nalign(npol*nchan*nrbl*8, alignment), 0);
-  Block<Char> seqnr(nalign(4, alignment), 0);
-  Block<Char> samples(nalign(nchan*npol*nrbl*2, alignment), 0);
+  Block<char> data(nalign(npol*nchan*nrbl*8, alignment), 0);
+  Block<char> seqnr(nalign(4, alignment), 0);
+  Block<char> samples(nalign(nchan*npol*nrbl*2, alignment), 0);
   // Open the files.
-  uInt nfiles = (nrbl + nblperfile - 1)/ nblperfile;
+  unsigned int nfiles = (nrbl + nblperfile - 1)/ nblperfile;
   Block<int> fds(nfiles);
-  for (uInt i=0; i<nfiles; ++i) {
-    fds[i] = open (("tIOPerf_tmp.dat"+ext+String::toString(i)).chars(),
+  for (unsigned int i=0; i<nfiles; ++i) {
+    fds[i] = open (("tIOPerf_tmp.dat"+ext+std::to_string(i)).c_str(),
                    O_RDWR | O_CREAT | O_TRUNC, 0644);
   }
   // Write all data.
-  Int64 leng=0;
-  Int64 snr=0;
+  int64_t leng=0;
+  int64_t snr=0;
   Timer timer;
-  for (uInt i=0; i<nseq; ++i) {
-    for (uInt j=0; j<nfiles; ++j) {
-      uInt nb = std::min(nblperfile, nrbl-j*nblperfile);
-      for (uInt k=0; k<nb; ++k) {
-        *(Int64*)(data.storage()+k*nchan*npol*8) = ++snr;
+  for (unsigned int i=0; i<nseq; ++i) {
+    for (unsigned int j=0; j<nfiles; ++j) {
+      unsigned int nb = std::min(nblperfile, nrbl-j*nblperfile);
+      for (unsigned int k=0; k<nb; ++k) {
+        *(int64_t*)(data.storage()+k*nchan*npol*8) = ++snr;
       }
       leng += write (fds[j], seqnr.storage(), seqnr.size());
       leng += write (fds[j], data.storage(), nb*nchan*npol*8);
@@ -119,7 +119,7 @@ void writeData2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
     }
   }
   timer.show ("write2 before fsync");
-  for (uInt j=0; j<nfiles; ++j) {
+  for (unsigned int j=0; j<nfiles; ++j) {
     fsync (fds[j]);
     close (fds[j]);
   }
@@ -127,21 +127,21 @@ void writeData2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
   cout << "  wrote " << leng << " bytes into " << nfiles << " files" << endl;
 }
 
-void writeData3 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-                 uInt alignment, uInt nseqperbl, const String& ext)
+void writeData3 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+                 unsigned int alignment, unsigned int nseqperbl, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(nalign(npol*nchan*nrbl*nseqperbl*8, alignment), 0);
-  Block<Char> seqnr(nalign(nseqperbl*4, alignment), 0);
-  Block<Char> samples(nalign(nchan*npol*nrbl*nseqperbl*2, alignment), 0);
+  Block<char> data(nalign(npol*nchan*nrbl*nseqperbl*8, alignment), 0);
+  Block<char> seqnr(nalign(nseqperbl*4, alignment), 0);
+  Block<char> samples(nalign(nchan*npol*nrbl*nseqperbl*2, alignment), 0);
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(),
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(),
                  O_RDWR | O_CREAT | O_TRUNC, 0644);
   // Write all data.
-  Int64 leng=0;
+  int64_t leng=0;
   Timer timer;
-  for (uInt i=0; i<nseq; i+=nseqperbl) {
+  for (unsigned int i=0; i<nseq; i+=nseqperbl) {
     leng += write (fd, seqnr.storage(), seqnr.size());
     leng += write (fd, data.storage(), data.size());
     leng += write (fd, samples.storage(), samples.size());
@@ -153,60 +153,60 @@ void writeData3 (uInt nseq, uInt nant, uInt nchan, uInt npol,
   cout << "      wrote " << leng << " bytes" << endl;
 }
 
-void readSeq (uInt nseq, uInt nant, uInt nchan, uInt npol,
-              uInt alignment, const String& ext)
+void readSeq (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+              unsigned int alignment, const String& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*nrbl*8, 0);
-  Block<Char> seqnr(4, 0);
-  Block<Char> samples(nchan*npol*nrbl*2, 0);
-  uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  uInt nalsamp = nalign (samples.size(), alignment - samples.size());
-  Int64 offset = seqnr.size() + nalseq;
+  Block<char> data(npol*nchan*nrbl*8, 0);
+  Block<char> seqnr(4, 0);
+  Block<char> samples(nchan*npol*nrbl*2, 0);
+  unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
+  int64_t offset = seqnr.size() + nalseq;
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(), O_RDONLY);
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(), O_RDONLY);
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt i=0; i<nseq; ++i) {
+  for (unsigned int i=0; i<nseq; ++i) {
     lseek (fd, offset, SEEK_SET);
     leng += read (fd, data.storage(), data.size());
     offset += seqnr.size() + nalseq + data.size() + naldata + samples.size() + nalsamp;
   }
   timer.show ("readseq            ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
   close (fd);
 }
 
-void readSeq2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-               uInt alignment, uInt nblperfile, const String& ext)
+void readSeq2 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+               unsigned int alignment, unsigned int nblperfile, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*nrbl*8, 0);
-  Block<Char> seqnr(4, 0);
-  Block<Char> samples(nchan*npol*nrbl*2, 0);
-  //uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  //uInt nalsamp = nalign (samples.size(), alignment - samples.size());
+  Block<char> data(npol*nchan*nrbl*8, 0);
+  Block<char> seqnr(4, 0);
+  Block<char> samples(nchan*npol*nrbl*2, 0);
+  //unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  //unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
   // Open the files.
-  uInt nfiles = (nrbl + nblperfile - 1)/ nblperfile;
+  unsigned int nfiles = (nrbl + nblperfile - 1)/ nblperfile;
   Block<int> fds(nfiles);
-  Block<Int64> offsets(nfiles);
-  for (uInt i=0; i<nfiles; ++i) {
-    fds[i] = open (("tIOPerf_tmp.dat"+ext+String::toString(i)).chars(),
+  Block<int64_t> offsets(nfiles);
+  for (unsigned int i=0; i<nfiles; ++i) {
+    fds[i] = open (("tIOPerf_tmp.dat"+ext+std::to_string(i)).c_str(),
                    O_RDONLY);
     offsets[i] = seqnr.size() + nalseq;
   }
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt i=0; i<nseq; ++i) {
-    for (uInt j=0; j<nfiles; ++j) {
-      uInt nb = std::min(nblperfile, nrbl-j*nblperfile);
+  for (unsigned int i=0; i<nseq; ++i) {
+    for (unsigned int j=0; j<nfiles; ++j) {
+      unsigned int nb = std::min(nblperfile, nrbl-j*nblperfile);
       lseek (fds[j], offsets[j], SEEK_SET);
       leng += read (fds[j], data.storage(), nb*nchan*npol*8);
       offsets[j] += seqnr.size() + nalseq + nb*nchan*npol*10;
@@ -214,65 +214,65 @@ void readSeq2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
   }
   timer.show ("readseq2           ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
-  for (uInt j=0; j<nfiles; ++j) {
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
+  for (unsigned int j=0; j<nfiles; ++j) {
     close (fds[j]);
   }
 }
 
-void readSeq3 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-               uInt alignment, uInt nseqperbl, const String& ext)
+void readSeq3 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+               unsigned int alignment, unsigned int nseqperbl, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*nrbl*nseqperbl*8, 0);
-  Block<Char> seqnr(nseqperbl*4, 0);
-  Block<Char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
-  uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  uInt nalsamp = nalign (samples.size(), alignment - samples.size());
-  Int64 offset = seqnr.size() + nalseq;
+  Block<char> data(npol*nchan*nrbl*nseqperbl*8, 0);
+  Block<char> seqnr(nseqperbl*4, 0);
+  Block<char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
+  unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
+  int64_t offset = seqnr.size() + nalseq;
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(), O_RDONLY);
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(), O_RDONLY);
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt i=0; i<nseq; i+=nseqperbl) {
+  for (unsigned int i=0; i<nseq; i+=nseqperbl) {
     lseek (fd, offset, SEEK_SET);
     leng += read (fd, data.storage(), data.size());
     offset += seqnr.size() + nalseq + data.size() + naldata + samples.size() + nalsamp;
   }
   timer.show ("readseq3           ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
   close (fd);
 }
 
-void readSeq3a (uInt nseq, uInt nant, uInt nchan, uInt npol,
-                uInt alignment, uInt nseqperbl, const String& ext)
+void readSeq3a (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+                unsigned int alignment, unsigned int nseqperbl, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*nrbl*nseqperbl*8, 0);
-  Block<Char> seqnr(nseqperbl*4, 0);
-  Block<Char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
-  uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  uInt nalsamp = nalign (samples.size(), alignment - samples.size());
-  Int64 offset = seqnr.size() + nalseq;
+  Block<char> data(npol*nchan*nrbl*nseqperbl*8, 0);
+  Block<char> seqnr(nseqperbl*4, 0);
+  Block<char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
+  unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
+  int64_t offset = seqnr.size() + nalseq;
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(), O_RDONLY);
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(), O_RDONLY);
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt i=0; i<nseq; i+=nseqperbl) {
+  for (unsigned int i=0; i<nseq; i+=nseqperbl) {
     // Preread the data sequentially, so it is cached by the system.
     // Thereafter the next random reads do not need actual disk seeks.
     lseek (fd, offset, SEEK_SET);
     AlwaysAssertExit (size_t(read (fd, data.storage(), data.size())) == data.size());
-    for (uInt j=0; j<nseqperbl; ++j) {
-      Int64 offset1 = offset + j*npol*nchan*8;
-      for (uInt k=0; k<nrbl; ++k) {
+    for (unsigned int j=0; j<nseqperbl; ++j) {
+      int64_t offset1 = offset + j*npol*nchan*8;
+      for (unsigned int k=0; k<nrbl; ++k) {
         lseek (fd, offset1, SEEK_SET);
         leng += read (fd, data.storage(), npol*nchan*8);
         offset1 += nseqperbl*npol*nchan*8;
@@ -282,29 +282,29 @@ void readSeq3a (uInt nseq, uInt nant, uInt nchan, uInt npol,
   }
   timer.show ("readseq3a          ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
   close (fd);
 }
 
-void readBL (uInt nseq, uInt nant, uInt nchan, uInt npol,
-             uInt alignment, const String& ext)
+void readBL (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+             unsigned int alignment, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*8, 0);
-  Block<Char> seqnr(4, 0);
-  Block<Char> samples(nchan*npol*nrbl*2, 0);
-  uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  uInt nalsamp = nalign (samples.size(), alignment - samples.size());
+  Block<char> data(npol*nchan*8, 0);
+  Block<char> seqnr(4, 0);
+  Block<char> samples(nchan*npol*nrbl*2, 0);
+  unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(), O_RDONLY);
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(), O_RDONLY);
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt j=0; j<nrbl; ++j) {
-    Int64 offset = seqnr.size() + nalseq + j*data.size();
-    for (uInt i=0; i<nseq; ++i) {
+  for (unsigned int j=0; j<nrbl; ++j) {
+    int64_t offset = seqnr.size() + nalseq + j*data.size();
+    for (unsigned int i=0; i<nseq; ++i) {
       lseek (fd, offset, SEEK_SET);
       leng += read (fd, data.storage(), data.size());
       offset += (seqnr.size() + nalseq + naldata + samples.size() + nalsamp
@@ -313,39 +313,39 @@ void readBL (uInt nseq, uInt nant, uInt nchan, uInt npol,
   }
   timer.show ("readbl             ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
   close (fd);
 }
 
-void readBL2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-              uInt alignment, uInt nblperfile, const String& ext)
+void readBL2 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+              unsigned int alignment, unsigned int nblperfile, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
+  unsigned int nrbl = nant*(nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*8, 0);
-  Block<Char> seqnr(4, 0);
-  Block<Char> samples(nchan*npol*nrbl*2, 0);
-  //uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  //uInt nalsamp = nalign (samples.size(), alignment - samples.size());
+  Block<char> data(npol*nchan*8, 0);
+  Block<char> seqnr(4, 0);
+  Block<char> samples(nchan*npol*nrbl*2, 0);
+  //unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  //unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
   // Open the files.
-  uInt nfiles = (nrbl + nblperfile - 1)/ nblperfile;
+  unsigned int nfiles = (nrbl + nblperfile - 1)/ nblperfile;
   Block<int> fds(nfiles);
-  for (uInt i=0; i<nfiles; ++i) {
-    fds[i] = open (("tIOPerf_tmp.dat"+ext+String::toString(i)).chars(),
+  for (unsigned int i=0; i<nfiles; ++i) {
+    fds[i] = open (("tIOPerf_tmp.dat"+ext+std::to_string(i)).c_str(),
                    O_RDONLY);
   }
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt j=0; j<nrbl; ++j) {
-    uInt fdnr = j/nblperfile;
-    uInt nb = std::min(nblperfile, nrbl-fdnr*nblperfile);
-    Int64 offset = seqnr.size() + nalseq + (j-fdnr*nblperfile)*nchan*npol*8;
-    for (uInt i=0; i<nseq; ++i) {
+  for (unsigned int j=0; j<nrbl; ++j) {
+    unsigned int fdnr = j/nblperfile;
+    unsigned int nb = std::min(nblperfile, nrbl-fdnr*nblperfile);
+    int64_t offset = seqnr.size() + nalseq + (j-fdnr*nblperfile)*nchan*npol*8;
+    for (unsigned int i=0; i<nseq; ++i) {
       lseek (fds[fdnr], offset, SEEK_SET);
       leng += read (fds[fdnr], data.storage(), nchan*npol*8);
-      Int64 snr = *(Int64*)(data.storage());
+      int64_t snr = *(int64_t*)(data.storage());
       if (snr != 1+j+i*nrbl) {
         cout << "** read snr " << snr << ", expected " << 1+j+i*nrbl << endl;
       }
@@ -354,34 +354,34 @@ void readBL2 (uInt nseq, uInt nant, uInt nchan, uInt npol,
   }
   timer.show ("readbl2            ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
-  for (uInt j=0; j<nfiles; ++j) {
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
+  for (unsigned int j=0; j<nfiles; ++j) {
     close (fds[j]);
   }
 }
 
-void readBL3 (uInt nseq, uInt nant, uInt nchan, uInt npol,
-              uInt alignment, uInt nseqperbl, bool useNbb, const String& ext)
+void readBL3 (unsigned int nseq, unsigned int nant, unsigned int nchan, unsigned int npol,
+              unsigned int alignment, unsigned int nseqperbl, bool useNbb, const std::string& ext)
 {
-  uInt nrbl = nant*(nant+1)/2;
-  uInt nbb = 1;
+  unsigned int nrbl = nant*(nant+1)/2;
+  unsigned int nbb = 1;
   if (useNbb) nbb = (nant+1)/2;
   // Create and initialize blocks for data, seqnr, and nsample.
-  Block<Char> data(npol*nchan*nrbl*nseqperbl*8, 0);
-  Block<Char> seqnr(nseqperbl*4, 0);
-  Block<Char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
-  uInt naldata = nalign (data.size(), alignment) - data.size();
-  uInt nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
-  uInt nalsamp = nalign (samples.size(), alignment - samples.size());
-  //uInt npart = nseq/nseqperbl;
+  Block<char> data(npol*nchan*nrbl*nseqperbl*8, 0);
+  Block<char> seqnr(nseqperbl*4, 0);
+  Block<char> samples(nchan*npol*nrbl*nseqperbl*2, 0);
+  unsigned int naldata = nalign (data.size(), alignment) - data.size();
+  unsigned int nalseq  = nalign (seqnr.size(), alignment) - seqnr.size();
+  unsigned int nalsamp = nalign (samples.size(), alignment - samples.size());
+  //unsigned int npart = nseq/nseqperbl;
   // Open the file.
-  int fd = open (("tIOPerf_tmp.dat"+ext).chars(), O_RDONLY);
+  int fd = open (("tIOPerf_tmp.dat"+ext).c_str(), O_RDONLY);
   // Read all data.
-  Int64 leng = 0;
+  int64_t leng = 0;
   Timer timer;
-  for (uInt j=0; j<nrbl; ++j) {
-    Int64 offset = seqnr.size() + nalseq + j*npol*nchan*nseqperbl*8;
-    for (uInt k=0; k<nseq; k+=nseqperbl) {
+  for (unsigned int j=0; j<nrbl; ++j) {
+    int64_t offset = seqnr.size() + nalseq + j*npol*nchan*nseqperbl*8;
+    for (unsigned int k=0; k<nseq; k+=nseqperbl) {
       ///cout<<"bl="<<j<<" seq="<<k << " offset="<<offset<<' '<<npol*nchan*nbb*nseqperbl*8<<endl;
       lseek (fd, offset, SEEK_SET);
       if (nbb > 1  &&  j%nbb == 0) {
@@ -394,7 +394,7 @@ void readBL3 (uInt nseq, uInt nant, uInt nchan, uInt npol,
   }
   timer.show ("readbl3            ");
   cout << "  data read " << leng << " bytes; expected "
-       << Int64(nseq)*nrbl*npol*nchan*8 << endl;
+       << int64_t(nseq)*nrbl*npol*nchan*8 << endl;
   close (fd);
 }
 
@@ -403,11 +403,11 @@ int main (int argc, char* argv[])
 {
   try {
     // Get nseq, nant, nchan, npol from argv.
-    uInt nseq=10;
-    uInt nant=16;
-    uInt nchan=256;
-    uInt npol=4;
-    uInt align = 512;
+    unsigned int nseq=10;
+    unsigned int nant=16;
+    unsigned int nchan=256;
+    unsigned int npol=4;
+    unsigned int align = 512;
     if (argc > 1) {
       istringstream istr(argv[1]);
       istr >> nseq;
@@ -428,17 +428,17 @@ int main (int argc, char* argv[])
       istringstream istr(argv[5]);
       istr >> align;
     }
-    uInt nblperfile = (nant+1)/2;
+    unsigned int nblperfile = (nant+1)/2;
     if (argc > 6) {
       istringstream istr(argv[6]);
       istr >> nblperfile;
     }
-    uInt type = 0;
+    unsigned int type = 0;
     if (argc > 7) {
       istringstream istr(argv[7]);
       istr >> type;
     }
-    uInt subtype = 1+2+4+8+16+32+64+128;
+    unsigned int subtype = 1+2+4+8+16+32+64+128;
     if (argc > 8) {
       istringstream istr(argv[8]);
       istr >> subtype;
