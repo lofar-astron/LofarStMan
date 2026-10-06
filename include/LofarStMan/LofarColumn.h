@@ -64,11 +64,11 @@ public:
     : StManColumn (dtype),
       itsParent   (parent)
   {}
-  virtual ~LofarColumn();
+  ~LofarColumn() override;
   // Most columns are not writable (only DATA is writable).
-  virtual casacore::Bool isWritable() const;
+  bool isWritable() const override;
   // Set column shape of fixed shape columns; it does nothing.
-  virtual void setShapeColumn (const casacore::IPosition& shape);
+  void setShapeColumn (const casacore::IPosition& shape) final override;
   // Prepare the column. By default it does nothing.
   virtual void prepareCol();
 protected:
@@ -77,50 +77,50 @@ protected:
 
 // <summary>ANTENNA1 column in the LOFAR Storage Manager.</summary>
 // <use visibility=local>
-class Ant1Column : public LofarColumn
+class Ant1Column final : public LofarColumn
 {
 public:
   explicit Ant1Column (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
-  virtual ~Ant1Column();
-  virtual void getIntV (casacore::uInt rowNr, casacore::Int* dataPtr);
+  ~Ant1Column() override;
+  void getIntV (unsigned int rowNr, int* dataPtr) override;
 };
 
 // <summary>ANTENNA2 column in the LOFAR Storage Manager.</summary>
 // <use visibility=local>
-class Ant2Column : public LofarColumn
+class Ant2Column final : public LofarColumn
 {
 public:
   explicit Ant2Column (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
-  virtual ~Ant2Column();
-  virtual void getIntV (casacore::uInt rowNr, casacore::Int* dataPtr);
+  ~Ant2Column() override;
+  void getIntV (unsigned int rowNr, int* dataPtr) override;
 };
 
 // <summary>TIME and TIME_CENTROID column in the LOFAR Storage Manager.</summary>
 // <use visibility=local>
-class TimeColumn : public LofarColumn
+class TimeColumn final : public LofarColumn
 {
 public:
   explicit TimeColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
-  virtual ~TimeColumn();
-  virtual void getdoubleV (casacore::uInt rowNr, casacore::Double* dataPtr);
+  ~TimeColumn() override;
+  void getdoubleV (unsigned int rowNr, double* dataPtr) override;
 private:
-  casacore::Double itsValue;
+  double itsValue;
 };
 
 // <summary>INTERVAL and EXPOSURE column in the LOFAR Storage Manager.</summary>
 // <use visibility=local>
-class IntervalColumn : public LofarColumn
+class IntervalColumn final : public LofarColumn
 {
 public:
   explicit IntervalColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
-  virtual ~IntervalColumn();
-  virtual void getdoubleV (casacore::uInt rowNr, casacore::Double* dataPtr);
+  ~IntervalColumn() override;
+  void getdoubleV (unsigned int rowNr, double* dataPtr) override;
 private:
-  casacore::Double itsValue;
+  double itsValue;
 };
 
 // <summary>All columns in the LOFAR Storage Manager with value 0.</summary>
@@ -131,12 +131,12 @@ public:
   explicit ZeroColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~ZeroColumn();
-  virtual void getIntV (casacore::uInt rowNr, casacore::Int* dataPtr);
+  virtual void getIntV (unsigned int rowNr, int* dataPtr);
 private:
-  casacore::Int itsValue;
+  int itsValue;
 };
 
-// <summary>All columns in the LOFAR Storage Manager with value False.</summary>
+// <summary>All columns in the LOFAR Storage Manager with value false.</summary>
 // <use visibility=local>
 class FalseColumn : public LofarColumn
 {
@@ -144,9 +144,9 @@ public:
   explicit FalseColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~FalseColumn();
-  virtual void getBoolV (casacore::uInt rowNr, casacore::Bool* dataPtr);
+  virtual void getBoolV (unsigned int rowNr, bool* dataPtr);
 private:
-  casacore::Bool itsValue;
+  bool itsValue;
 };
 
 // <summary>UVW column in the LOFAR Storage Manager.</summary>
@@ -157,9 +157,9 @@ public:
   explicit UvwColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~UvwColumn();
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArraydoubleV (casacore::uInt rowNr,
-                                casacore::Array<casacore::Double>* dataPtr);
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArraydoubleV (unsigned int rowNr,
+                                casacore::Array<double>* dataPtr);
   virtual void prepareCol();
 private:
   casacore::MDirection              itsPhaseDir;    //# could be SUN, etc.
@@ -180,11 +180,11 @@ public:
   explicit DataColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~DataColumn();
-  virtual casacore::Bool isWritable() const;
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArrayComplexV (casacore::uInt rowNr,
+  virtual bool isWritable() const;
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArrayComplexV (unsigned int rowNr,
                                  casacore::Array<casacore::Complex>* dataPtr);
-  virtual void putArrayComplexV (casacore::uInt rowNr,
+  virtual void putArrayComplexV (unsigned int rowNr,
                                  const casacore::Array<casacore::Complex>* dataPtr);
 };
 
@@ -196,9 +196,9 @@ public:
   explicit FlagColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~FlagColumn();
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArrayBoolV (casacore::uInt rowNr,
-                              casacore::Array<casacore::Bool>* dataPtr);
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArrayBoolV (unsigned int rowNr,
+                              casacore::Array<bool>* dataPtr);
 };
 
 // <summary>WEIGHT column in the LOFAR Storage Manager.</summary>
@@ -209,9 +209,9 @@ public:
   explicit WeightColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~WeightColumn();
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArrayfloatV (casacore::uInt rowNr,
-                               casacore::Array<casacore::Float>* dataPtr);
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArrayfloatV (unsigned int rowNr,
+                               casacore::Array<float>* dataPtr);
 };
 
 // <summary>SIGMA column in the LOFAR Storage Manager.</summary>
@@ -222,9 +222,9 @@ public:
   explicit SigmaColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~SigmaColumn();
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArrayfloatV (casacore::uInt rowNr,
-                               casacore::Array<casacore::Float>* dataPtr);
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArrayfloatV (unsigned int rowNr,
+                               casacore::Array<float>* dataPtr);
 };
 
 // <summary>WEIGHT_SPECTRUM column in the LOFAR Storage Manager.</summary>
@@ -235,9 +235,9 @@ public:
   explicit WSpectrumColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~WSpectrumColumn();
-  virtual casacore::IPosition shape (casacore::uInt rownr);
-  virtual void getArrayfloatV (casacore::uInt rowNr,
-                               casacore::Array<casacore::Float>* dataPtr);
+  virtual casacore::IPosition shape (unsigned int rownr);
+  virtual void getArrayfloatV (unsigned int rowNr,
+                               casacore::Array<float>* dataPtr);
 };
 
 // <summary>FLAG_CATEGORY column in the LOFAR Storage Manager.</summary>
@@ -248,8 +248,8 @@ public:
   explicit FlagCatColumn (LofarStMan* parent, int dtype)
     : LofarColumn(parent, dtype) {}
   virtual ~FlagCatColumn();
-  virtual casacore::Bool isShapeDefined (casacore::uInt rownr);
-  virtual casacore::IPosition shape (casacore::uInt rownr);
+  virtual bool isShapeDefined (unsigned int rownr);
+  virtual casacore::IPosition shape (unsigned int rownr);
 };
 
 

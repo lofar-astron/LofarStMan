@@ -41,9 +41,9 @@ void fixTable (const String& name)
     cout << "MS already contains column WEIGHT_SPECTRUM" << endl;
   } else {
     TableDesc td;
-    ArrayColumnDesc<Float> cd("WEIGHT_SPECTRUM");
-    //# Note: True means add to existing LofarStMan.
-    t.addColumn (cd, "LofarStMan", True);
+    ArrayColumnDesc<float> cd("WEIGHT_SPECTRUM");
+    //# Note: true means add to existing LofarStMan.
+    t.addColumn (cd, "LofarStMan", true);
     cout << "Added column WEIGHT_SPECTRUM to the MS" << endl;
   }
 }

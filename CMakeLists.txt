@@ -1,6 +1,6 @@
 # $Id: CMakeLists.txt 14280 2009-10-16 13:48:46Z loose $
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 
 project(LofarStMan VERSION 1.0.2)
 
@@ -9,7 +9,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
+add_compile_options(
+  -O3
+  -Wall
+  -Wnon-virtual-dtor
+  -Wzero-as-null-pointer-constant
+  -Wduplicated-branches
+  -Wundef
+  -Wvla
+  -Wpointer-arith
+  -Wextra
+  -Wno-unused-parameter
+  -Wno-psabi)
 
 if(PORTABLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
