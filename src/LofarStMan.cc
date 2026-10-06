@@ -41,8 +41,8 @@ LofarStMan::LofarStMan (const String& dataManName)
 : DataManager    (),
   itsDataManName (dataManName),
   itsFD          (-1),
-  itsRegFile     (0),
-  itsSeqFile     (0)
+  itsRegFile     (nullptr),
+  itsSeqFile     (nullptr)
 {}
 
 LofarStMan::LofarStMan (const String& dataManName,
@@ -50,16 +50,16 @@ LofarStMan::LofarStMan (const String& dataManName,
 : DataManager    (),
   itsDataManName (dataManName),
   itsFD          (-1),
-  itsRegFile     (0),
-  itsSeqFile     (0)
+  itsRegFile     (nullptr),
+  itsSeqFile     (nullptr)
 {}
 
 LofarStMan::LofarStMan (const LofarStMan& that)
 : DataManager    (),
   itsDataManName (that.itsDataManName),
   itsFD          (-1),
-  itsRegFile     (0),
-  itsSeqFile     (0)
+  itsRegFile     (nullptr),
+  itsSeqFile     (nullptr)
 {}
 
 LofarStMan::~LofarStMan()
@@ -236,25 +236,25 @@ void LofarStMan::openFiles (bool writable)
   if ((long long) (itsBuffer.size()) < itsBLDataSize) {
     itsBuffer.resize (itsBLDataSize);
   }
-  itsSpec.define ("useSeqnrFile", itsSeqFile!=0);
+  itsSpec.define ("useSeqnrFile", itsSeqFile!=nullptr);
 }
 
 void LofarStMan::mapSeqFile()
 {
   delete itsSeqFile;
-  itsSeqFile = 0;
+  itsSeqFile = nullptr;
   try {
     itsSeqFile = new MMapIO (fileName() + "seqnr");
   } catch (...) {
     delete itsSeqFile; 
-    itsSeqFile = 0;
+    itsSeqFile = nullptr;
   }
   // Check the size of the sequencenumber file, close file if it doesn't match.
   // It should contain the nr of time slots.
   if (itsSeqFile && (itsSeqFile->getFileSize() !=
 		     static_cast<int64_t>(itsNrRows / itsAnt1.size() * sizeof(unsigned int)))) {
     delete itsSeqFile;
-    itsSeqFile = 0;
+    itsSeqFile = nullptr;
   }
 }
 
@@ -265,9 +265,9 @@ void LofarStMan::closeFiles()
     itsFD = -1;
   }
   delete itsRegFile;
-  itsRegFile = 0;
+  itsRegFile = nullptr;
   delete itsSeqFile;
-  itsSeqFile = 0;
+  itsSeqFile = nullptr;
 }
 
 void LofarStMan::resync (unsigned int)

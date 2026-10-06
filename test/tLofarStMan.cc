@@ -322,7 +322,7 @@ void createData (unsigned int nseq, unsigned int nant, unsigned int nchan, unsig
   delete cfile;
 
   if (useSeqFile  &&  myStManVersion > 1) {
-    TypeIO* sfile = 0;
+    TypeIO* sfile = nullptr;
     // create seperate file for sequence numbers if version > 1
     auto file = std::make_shared<RegularFileIO>(
       RegularFile("tLofarStMan_tmp.data/table.f0seqnr"), ByteIO::New);
